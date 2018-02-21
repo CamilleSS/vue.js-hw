@@ -2,7 +2,7 @@
     <li v-bind:class="{sold: car.sold}">
       <p v-if="!isEditing" v-on:click="startEditCar(car)">{{ `${car.id}. ${car.name}` }}</p>
       <input v-if="isEditing" v-model="newName" v-on:keyup.enter="endEditCar(car)">
-      <button v-on:click="markCarSold(car)">Sold</button>
+      <button v-on:click="handleSoldCar(car)">{{car.sold ? 'Unsold' : 'Sold'}}</button>
       <button v-on:click="$emit('remove')">X</button>
     </li>
 </template>
@@ -17,8 +17,8 @@ export default {
     }
   },
   methods: {
-    markCarSold: function (car) {
-      this.$set(car, 'sold', true)
+    handleSoldCar: function (car) {
+      this.$set(car, 'sold', !car.sold)
     },
     startEditCar: function (car) {
       this.isEditing = true

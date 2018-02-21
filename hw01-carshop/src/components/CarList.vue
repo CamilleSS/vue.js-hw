@@ -7,14 +7,14 @@
         <input v-model="soldHidden" type="checkbox">
       </label>
       <input v-model="newCarName" v-on:keyup.enter="addNewCar" type="text" placeholder="Add new on enter">
-      <input v-model="filterQuery" v-on:keyup="filterCars" type="text" placeholder="Search">
+      <input v-model="filterQuery" type="text" placeholder="Search">
       <button v-on:click="clearList">Clear List</button>
     </div>
     <ul>
       <li
         is="car-item"
         v-if="!car.hidden"
-        v-for="(car, index) in soldHidden ? hiddenSold : cars"
+        v-for="(car, index) in outputCarList"
         v-on:remove="cars.splice(index, 1)"
         :car="car"
         :key="car.id">
@@ -39,9 +39,17 @@ export default {
     }
   },
   computed: {
-    hiddenSold: function () {
+    outputCarList: function () {
       return this.cars.filter(car => {
-        return !car.sold
+        if (this.filterQuery && this.soldHidden) {
+          return !car.sold && car.name.toLowerCase().includes(this.filterQuery.toLowerCase())
+        } else if (this.filterQuery) {
+          return car.name.toLowerCase().includes(this.filterQuery.toLowerCase())
+        } else if (this.soldHidden) {
+          return !car.sold
+        } else {
+          return car
+        }
       })
     }
   },
@@ -55,17 +63,10 @@ export default {
         this.newCarName = ''
       }
     },
-    filterCars: function () {
-      this.cars.forEach(car => {
-        if (!car.name.toLowerCase().includes(this.filterQuery.toLowerCase())) {
-          this.$set(car, 'hidden', true)
-        } else {
-          this.$set(car, 'hidden', false)
-        }
-      })
-    },
     clearList: function () {
       this.cars = []
+      this.nextCarId = 1
+      this.filterQuery = ''
     },
     handleSold: function () {
       if (this.soldHidden) {
