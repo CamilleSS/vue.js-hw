@@ -1,30 +1,45 @@
 <template>
     <li v-bind:class="{sold: car.sold}">
-      <p v-if="!isEditing" v-on:click="startEditCar(car)">{{ `${car.id}. ${car.name}` }}</p>
-      <input v-if="isEditing" v-model="newName" v-on:keyup.enter="endEditCar(car)">
-      <button v-on:click="handleSoldCar(car)">{{car.sold ? 'Unsold' : 'Sold'}}</button>
-      <button v-on:click="$emit('remove')">X</button>
+        <p v-if="!isEditing" v-on:click="startEditCar">{{ `${car.id}. ${car.name}` }}</p>
+
+        <input v-if="isEditing" v-model="car.name" v-on:keyup.enter="endEditCar">
+
+        <button v-on:click="handleSoldCar">{{car.sold ? 'Unsold' : 'Sold'}}</button>
+
+        <button v-on:click="$emit('remove')">X</button>
     </li>
 </template>
 
 <script>
 export default {
-  props: ['car'],
+  // props: ['car'],
+
+  props: {
+    car: {
+      type: Object,
+      required: true
+    }
+  },
+
   data () {
     return {
       isEditing: false,
-      newName: this.car.name
+      // newName: this.car.name
     }
   },
+
   methods: {
-    handleSoldCar: function (car) {
-      this.$set(car, 'sold', !car.sold)
+    handleSoldCar: function () {
+      this.$set(this.car, 'sold', !this.car.sold)
     },
-    startEditCar: function (car) {
+
+    startEditCar: function () {
       this.isEditing = true
     },
-    endEditCar: function (car) {
-      this.$set(car, 'name', this.newName)
+
+    endEditCar: function() {
+      // this.$set(this.car, 'name', this.newName)
+
       this.isEditing = false
     }
   }

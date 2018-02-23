@@ -6,8 +6,11 @@
         Hide sold cars
         <input v-model="soldHidden" type="checkbox">
       </label>
+
       <input v-model="newCarName" v-on:keyup.enter="addNewCar" type="text" placeholder="Add new on enter">
+
       <input v-model="filterQuery" type="text" placeholder="Search">
+
       <button v-on:click="clearList">Clear List</button>
     </div>
     <ul>
@@ -15,7 +18,7 @@
         is="car-item"
         v-if="!car.hidden"
         v-for="(car, index) in outputCarList"
-        v-on:remove="cars.splice(index, 1)"
+        v-on:remove="deleteCar(car)"
         :car="car"
         :key="car.id">
       </li>
@@ -40,17 +43,29 @@ export default {
   },
   computed: {
     outputCarList: function () {
-      return this.cars.filter(car => {
-        if (this.filterQuery && this.soldHidden) {
-          return !car.sold && car.name.toLowerCase().includes(this.filterQuery.toLowerCase())
-        } else if (this.filterQuery) {
-          return car.name.toLowerCase().includes(this.filterQuery.toLowerCase())
-        } else if (this.soldHidden) {
-          return !car.sold
-        } else {
-          return car
-        }
-      })
+      let cars = this.soldHidden ? this.unSoldCars : this.cars;
+
+      return cars.filter(car => {
+        return this.filterQuery.trim()
+          ? car.name.toLowerCase().includes(this.filterQuery.toLowerCase())
+          : car;
+      });
+
+      // return this.cars.filter(car => {
+      //   if (this.filterQuery && this.soldHidden) {
+      //     return !car.sold && car.name.toLowerCase().includes(this.filterQuery.toLowerCase())
+      //   } else if (this.filterQuery) {
+      //     return car.name.toLowerCase().includes(this.filterQuery.toLowerCase())
+      //   } else if (this.soldHidden) {
+      //     return !car.sold
+      //   } else {
+      //     return car
+      //   }
+      // })
+    },
+
+    unSoldCars() {
+      return this.cars.filter(car => !car.sold);
     }
   },
   methods: {
@@ -58,30 +73,44 @@ export default {
       if (this.newCarName) {
         this.cars.push({
           id: this.nextCarId++,
-          name: this.newCarName
-        })
+          name: this.newCarName,
+          sold: false
+        });
+
         this.newCarName = ''
       }
     },
+
     clearList: function () {
       this.cars = []
       this.nextCarId = 1
       this.filterQuery = ''
     },
-    handleSold: function () {
-      if (this.soldHidden) {
-        this.cars.forEach(car => {
-          if (car.sold) {
-            this.$set(car, 'hidden', true)
-          }
-        })
-      } else {
-        this.cars.forEach(car => {
-          this.$set(car, 'hidden', false)
-        })
+
+    deleteCar(deletedCar) {
+      const index = this.cars.findIndex(car => car.id === deletedCar.id);
+
+      if (index !== -1) {
+        this.cars.splice(index, 1);
       }
     }
+
+    // not used
+    // handleSold: function () {
+    //   if (this.soldHidden) {
+    //     this.cars.forEach(car => {
+    //       if (car.sold) {
+    //         this.$set(car, 'hidden', true)
+    //       }
+    //     })
+    //   } else {
+    //     this.cars.forEach(car => {
+    //       this.$set(car, 'hidden', false)
+    //     })
+    //   }
+    // }
   },
+
   components: {CarItem}
 }
 </script>
